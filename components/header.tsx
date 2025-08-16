@@ -1,7 +1,28 @@
+'use client'
 import { Button } from "@/components/ui/button"
 import { TrendingUp } from "lucide-react"
+import { useEffect, useState } from "react"
+import { LoginModal } from "./loginModal"
 
 export function Header() {
+  const [userId, setUserId] = useState<string | null>(null)
+
+  useEffect(() => {
+    // Check for existing user ID in localStorage on component mount
+    const cachedUserId = localStorage.getItem('userId')
+    if (cachedUserId) {
+      setUserId(cachedUserId)
+    }
+  }, [])
+
+  const handleLoginSuccess = (newUserId: string) => {
+    setUserId(newUserId)
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('userId')
+    setUserId(null)
+  }  
   return (
     <header className="border-b bg-card">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -27,7 +48,21 @@ export function Header() {
           <a href="#contact" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
             Contact Us
           </a>
-          <Button>Sign In</Button>
+           {userId ? (
+            <>
+              <span className="text-sm text-muted-foreground">
+                Welcome, User {userId}
+              </span>
+              <Button onClick={handleLogout}>
+                Log Out
+              </Button>
+            </>
+          ) : (
+            <>
+              <LoginModal onLoginSuccess={handleLoginSuccess} />
+              <Button>Sign Up</Button>
+            </>
+          )}
         </div>
       </div>
     </header>
