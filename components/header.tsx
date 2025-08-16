@@ -6,12 +6,17 @@ import { LoginModal } from "./loginModal"
 
 export function Header() {
   const [userId, setUserId] = useState<string | null>(null)
+  const [username, setUsername] = useState<string | null>(null)
 
   useEffect(() => {
     // Check for existing user ID in localStorage on component mount
     const cachedUserId = localStorage.getItem('userId')
     if (cachedUserId) {
       setUserId(cachedUserId)
+    }
+    const cachedUserName = localStorage.getItem('username')
+    if (cachedUserName) {
+      setUsername(cachedUserName)
     }
   }, [])
 
@@ -21,7 +26,9 @@ export function Header() {
 
   const handleLogout = () => {
     localStorage.removeItem('userId')
+    localStorage.removeItem('username')
     setUserId(null)
+    setUsername(null)
   }  
   return (
     <header className="border-b bg-card">
@@ -51,7 +58,7 @@ export function Header() {
            {userId ? (
             <>
               <span className="text-sm text-muted-foreground">
-                Welcome, User {userId}
+                Welcome, User {username}
               </span>
               <Button onClick={handleLogout}>
                 Log Out

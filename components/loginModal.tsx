@@ -1,3 +1,4 @@
+'use client'
 import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -7,12 +8,19 @@ import { Label } from "@/components/ui/label"
 interface LoginModalProps {
   onLoginSuccess: (userId: string) => void
 }
+interface LoginResponse {
+  message: string
+  user:{
+    id:string
+  }
+}  
 
 export function LoginModal({ onLoginSuccess }: LoginModalProps) {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [open, setOpen] = useState(false)
 
   const handleLogin = async () => {
     try {
@@ -27,25 +35,28 @@ export function LoginModal({ onLoginSuccess }: LoginModalProps) {
         body: JSON.stringify({ username, password }),
       })
 
-      const data = await response.json()
+      const data = await response.json() as LoginResponse
 
       if (!response.ok) {
-        throw new Error(data.error)
+        throw new Error(data.message || 'Login failed')
       }
-
+      console.log('Login successful:', data.user.id)
       // Store user ID in localStorage
-      localStorage.setItem('userId', data.userId)
-      onLoginSuccess(data.userId)
+      console.log('Login successful:', username)
+      localStorage.setItem('userId', data.user.id)
+      localStorage.setItem('username', username)
+      onLoginSuccess(data.user.id)
+      setOpen(false) // Close the modal
       
-    } catch (error) {
-      setError(error.message || "Login failed")
+    } catch (error: any) {
+      setError(error.message)
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>Log In</Button>
       </DialogTrigger>
