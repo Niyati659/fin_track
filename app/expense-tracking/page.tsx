@@ -23,8 +23,12 @@ export default function ExpenseTrackingPage() {
   }, [])
 
   const fetchExpenseData = async () => {
+    const userId = localStorage.getItem('userId')
+  
+    console.log("Fetching expense data..."  )
     try {
-      const response = await fetch("/api/expense-categories")
+       const response = await fetch(`/api/expense-categories?userId=${userId}`)
+      console.log("Response status:", response)
       if (response.ok) {
         const data = await response.json()
         setExpenseData(data.expenses || [])

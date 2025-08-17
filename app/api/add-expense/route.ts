@@ -3,25 +3,23 @@ import { type NextRequest, NextResponse } from "next/server"
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { amount, category, date } = body
-
+    const { amount, category, user_id } = body
+    console.log("Received add expense request:", { amount, category, user_id })
     // Validate input
-    if (!amount || !category || !date) {
-      return NextResponse.json({ error: "Missing required fields: amount, category, date" }, { status: 400 })
+    if (!amount || !category ) {
+      return NextResponse.json({ error: "Missing required fields: amount, category" }, { status: 400 })
     }
-
+    console.log(`${process.env.BACKEND_API_URL}fintrack/addExpenses`)
     // Call your existing backend API
-    const backendResponse = await fetch(`${process.env.BACKEND_API_URL}/api/expenses`, {
+    const backendResponse = await fetch(`${process.env.BACKEND_API_URL}fintrack/addExpenses`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.API_TOKEN}`, // Add your auth token if needed
       },
       body: JSON.stringify({
-        amount: Number.parseFloat(amount),
-        category,
-        date,
-        userId: "user-id-from-auth", // Replace with actual user ID from auth
+        amount: Number(amount),
+        category:category,
+        user_id: user_id, 
       }),
     })
 

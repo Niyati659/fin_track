@@ -32,8 +32,9 @@ export function QuickActions() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          amount: Number.parseFloat(incomeAmount),
+          amount: Number(incomeAmount),
           date: new Date().toISOString(),
+          user_id: localStorage.getItem('userId'), // Assuming user ID is stored in localStorage
         }),
       })
 
@@ -66,16 +67,16 @@ export function QuickActions() {
       })
       return
     }
-
+    console.log(localStorage.getItem('userId'),expenseAmount, expenseCategory)
     setLoading(true)
     try {
       const response = await fetch("/api/add-expense", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          amount: Number.parseFloat(expenseAmount),
+          amount: Number(expenseAmount),
           category: expenseCategory,
-          date: new Date().toISOString(),
+          user_id: localStorage.getItem('userId'), 
         }),
       })
 

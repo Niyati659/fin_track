@@ -3,25 +3,24 @@ import { type NextRequest, NextResponse } from "next/server"
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { amount, category, date } = body
+    const { amount, user_id, date } = body
 
     // Validate input
-    if (!amount || !category || !date) {
-      return NextResponse.json({ error: "Missing required fields: amount, category, date" }, { status: 400 })
+    if (!amount || !date) {
+      return NextResponse.json({ error: "Missing required fields: amount,  date" }, { status: 400 })
     }
 
     // Call your existing backend API
-    const backendResponse = await fetch(`${process.env.BACKEND_API_URL}/api/income`, {
+    const backendResponse = await fetch(`${process.env.BACKEND_API_URL}fintrack/addIncome`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.API_TOKEN}`, // Add your auth token if needed
+        
       },
       body: JSON.stringify({
-        amount: Number.parseFloat(amount),
-        category,
-        date,
-        userId: "user-id-from-auth", // Replace with actual user ID from auth
+        amount: Number(amount),
+        date:date,
+        user_id: user_id, 
       }),
     })
 

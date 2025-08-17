@@ -2,23 +2,24 @@ import { type NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest) {
   try {
-    // Call your existing backend API to get user expenses by categories
-    const backendResponse = await fetch(`${process.env.BACKEND_API_URL}/api/expenses/categories`, {
+    const searchParams = request.nextUrl.searchParams
+    const userId = searchParams.get('userId')
+     if (!userId) {
+      return NextResponse.json({ error: "User ID is required" }, { status: 400 })
+    }
+    console.log(`${process.env.BACKEND_API_URL}fintrack/getExpenses/${userId}`)
+    const backendResponse = await fetch(`${process.env.BACKEND_API_URL}fintrack/getExpenses/${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.API_TOKEN}`,
-        // Add user ID from auth context
-        "X-User-ID": "user-id-from-auth", // Replace with actual user ID from auth
       },
     })
 
     if (!backendResponse.ok) {
       throw new Error("Backend API call failed")
     }
-
     const result = await backendResponse.json()
-
+    console.log(result);
     // Define the standard categories with display names
     const categoryMapping = {
       FOOD_GROCERY: "Food & Grocery",
