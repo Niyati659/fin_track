@@ -21,26 +21,31 @@ export async function GET(request: NextRequest) {
     const result = await backendResponse.json()
     console.log(result);
     // Define the standard categories with display names
+    
     const categoryMapping = {
-      FOOD_GROCERY: "Food & Grocery",
-      EDUCATION: "Education",
-      RENTS_BILLS: "Rents & Bills",
-      HEALTHCARE: "Healthcare",
-      ENTERTAINMENT: "Entertainment",
-      TRAVEL: "Travel",
-      OTHERS: "Others",
-      LOAN_EMI: "Loan-EMI",
+        'FOOD & GROCERY': "Food & Grocery",
+        'TRAVEL': "Travel",
+        'EDUCATION': "Education",
+        'RENTS & BILLS': "Rents & Bills",
+        'HEALTHCARE': "Healthcare",
+        'ENTERTAINMENT': "Entertainment",
+        'OTHERS': "Others",
+        'LOAN-EMI': "Loan-EMI",
     }
+    
 
     // Transform backend data to match our category structure
-    const expensesByCategory = Object.entries(categoryMapping).map(([key, displayName]) => ({
-      category: key,
-      displayName,
-      amount: result.categories?.[key] || 0,
+   const expenses = result.map((expense: any) => ({
+      category: expense.category,
+      displayName: categoryMapping[expense.category] || expense.category,
+      amount: expense.total_amount,
+      month: expense.month,
+      year: expense.year
     }))
 
+
     // Filter out categories with zero amounts for cleaner visualization
-    const nonZeroExpenses = expensesByCategory.filter((expense) => expense.amount > 0)
+    const nonZeroExpenses = expenses.filter(expense => expense.amount > 0)
 
     return NextResponse.json({
       success: true,
