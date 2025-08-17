@@ -16,34 +16,51 @@ export function FinancialOverview() {
     totalExpenses: 0,
     totalSavings: 0,
   })
+  const [loading, setLoading] = useState(true)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   useEffect(() => {
-    // Check if user is logged in (you can implement your auth logic here)
-    const checkAuthStatus = () => {
-      // For demo purposes, we'll simulate checking auth status
-      // Replace this with your actual auth check
-      const token = localStorage.getItem("authToken")
-      setIsLoggedIn(!!token)
-    }
-
-    checkAuthStatus()
-
-    // If logged in, fetch financial data
-    if (isLoggedIn) {
+    const userId = localStorage.getItem('userId')
+    setIsLoggedIn(!!userId)
+    if (userId) {
       fetchFinancialData()
     }
-  }, [isLoggedIn])
+  }, [])
 
   const fetchFinancialData = async () => {
+    const userId = localStorage.getItem('userId')
+    if (!userId) return
+
     try {
-      const response = await fetch("/api/financial-overview")
-      if (response.ok) {
-        const financialData = await response.json()
-        setData(financialData)
-      }
+      // Fetch total income
+      const incomeResponse = await fetch(`/api/financial-overview?userId=${userId}`)
+      console.log(incomeResponse)
+      const incomeData = await incomeResponse.json()
+      console.log(incomeData)
+      const totalIncome = Array.isArray(incomeData) && incomeData.length > 0 
+        ? incomeData[0].income 
+        : 0
+
+      // Fetch expenses by category
+      const expensesResponse = await fetch(`/api/expense-categories?userId=${userId}`)
+      const expensesData = await expensesResponse.json()
+      
+      // Calculate total expenses by summing up all categories
+      const totalExpenses = expensesData.expenses?.reduce((sum: number, expense: any) => 
+        sum + (expense.amount || 0), 0) || 0
+
+      // Calculate savings
+      const totalSavings = totalIncome - totalExpenses
+
+      setData({
+        totalIncome,
+        totalExpenses,
+        totalSavings
+      })
     } catch (error) {
       console.error("Failed to fetch financial data:", error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -53,6 +70,17 @@ export function FinancialOverview() {
       currency: "USD",
     }).format(amount)
   }
+
+  // if (!isLoggedIn) {
+  //   return (
+  //     <section className="py-16 px-4">
+  //       <div className="container mx-auto max-w-6xl text-center">
+  //         <h2 className="text-3xl font-bold text-foreground mb-4">Financial Overview</h2>
+  //         <p className="text-muted-foreground">Please login to view your financial data</p>
+  //       </div>
+  //     </section>
+  //   )
+  // }
 
   return (
     <section className="py-16 px-4">
@@ -72,9 +100,11 @@ export function FinancialOverview() {
               <TrendingUp className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{formatCurrency(data.totalIncome)}</div>
+              <div className="text-2xl font-bold text-green-600">
+                {loading ? "Loading..." : formatCurrency(isLoggedIn ? data.totalIncome : 0)}
+              </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {isLoggedIn ? "This month" : "Login to see your income"}
+                {isLoggedIn ? "This month" : "Login to see your actual income"}
               </p>
             </CardContent>
           </Card>
@@ -86,9 +116,11 @@ export function FinancialOverview() {
               <TrendingDown className="h-4 w-4 text-red-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">{formatCurrency(data.totalExpenses)}</div>
+              <div className="text-2xl font-bold text-red-600">
+                {loading ? "Loading..." : formatCurrency(isLoggedIn ? data.totalExpenses : 0)}
+              </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {isLoggedIn ? "This month" : "Login to see your expenses"}
+                {isLoggedIn ? "This month" : "Login to see your actual expenses"}
               </p>
             </CardContent>
           </Card>
@@ -100,9 +132,11 @@ export function FinancialOverview() {
               <PiggyBank className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{formatCurrency(data.totalSavings)}</div>
+              <div className="text-2xl font-bold text-blue-600">
+                {loading ? "Loading..." : formatCurrency(isLoggedIn ? data.totalSavings : 0)}
+              </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {isLoggedIn ? "Available balance" : "Login to see your savings"}
+                {isLoggedIn ? "Available balance" : "Login to see your actual savings"}
               </p>
             </CardContent>
           </Card>
