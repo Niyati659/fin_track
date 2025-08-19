@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
-import pickle
+import joblib
 
 # Load dataset
 df = pd.read_csv("investment_data1.csv")
@@ -46,19 +46,12 @@ print(classification_report(y_stock_test, stock_pred, target_names=le_stock.clas
 print("📊 Mutual Fund Recommendation Model Performance")
 print(classification_report(y_mf_test, mf_pred, target_names=le_mf.classes_))
 
-# --- Save models and encoders ---
-with open("stock_model.pkl", "wb") as f:
-    pickle.dump(stock_model, f)
-
-with open("mf_model.pkl", "wb") as f:
-    pickle.dump(mf_model, f)
-
-with open("encoders.pkl", "wb") as f:
-    pickle.dump({
-        "risk": le_risk,
-        "horizon": le_horizon,
-        "stock": le_stock,
-        "mf": le_mf
-    }, f)
+joblib.dump(stock_model, "stock_model.joblib", compress=("lzma", 3))
+joblib.dump(mf_model, "mf_model.joblib", compress=("lzma", 3))
+joblib.dump(
+    {"risk": le_risk, "horizon": le_horizon, "stock": le_stock, "mf": le_mf},
+    "encoders.joblib",
+    compress=("lzma", 3)
+)
 
 print("✅ Models and encoders saved successfully!")

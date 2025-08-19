@@ -1,5 +1,5 @@
 import pandas as pd
-import pickle
+import joblib
 import yfinance as yf
 import requests
 import re
@@ -8,14 +8,13 @@ import re
 # 1. Load Models & Encoders
 # -------------------------------
 try:
-    with open("stock_model.pkl", "rb") as f:
-        stock_model = pickle.load(f)
-    with open("mf_model.pkl", "rb") as f:
-        mf_model = pickle.load(f)
-    with open("encoders.pkl", "rb") as f:
-        encoders = pickle.load(f)
+    stock_model = joblib.load("stock_model.joblib")
+    mf_model = joblib.load("mf_model.joblib")
+    encoders = joblib.load("encoders.joblib")
 except FileNotFoundError as e:
-    raise FileNotFoundError(f"Missing file: {e}. Make sure stock_model.pkl, mf_model.pkl, encoders.pkl are in this folder.")
+    raise FileNotFoundError(
+        f"Missing file: {e}. Make sure stock_model.joblib, mf_model.joblib, encoders.joblib are in this folder."
+    )
 except Exception as e:
     raise RuntimeError(f"Error loading models: {e}")
 
