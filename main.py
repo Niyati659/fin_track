@@ -1,25 +1,30 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-from typing import Optional
-from investment_recommendation import recommend_investment 
+import gradio as gr
+from investment_recommendation import recommend_investment
 
-
-app = FastAPI(title="FinTrack Investment Recommendation API")
-
-# Request schema for POST
-class UserInput(BaseModel):
-    risk: str
-    horizon: str
-    investment_amount: float
-
-@app.post("/recommend")
-def recommend(user: UserInput):
+def recommend_api(risk, horizon, investment_amount):
     try:
-        result = recommend_investment(user.dict())
+        user = {
+            "risk": risk,
+            "horizon": horizon,
+            "investment_amount": float(investment_amount)
+        }
+        result = recommend_investment(user)
         return {"status": "success", "data": result}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
-@app.get("/")
-def root():
-    return {"message": "✅ FinTrack API is running!"}
+with gr.Blocks(title="FinTrack Investment Recommendation") as demo:
+    gr.Markdown("## 💹 FinTrack Investment Recommendation API")
+    
+    risk = gr.Dropdown(choices=["Aggressive", "Conservative", "Moderate"], label="Risk appetite")
+    horizon = gr.Dropdown(choices=["Short-term", "Medium-term", "Long-term"], label="Investment horizon")
+    amount = gr.Number(label="Investment amount (₹)", precision=2)
+    
+    output = gr.JSON(label="Recommendation")
+    
+    btn = gr.Button("Get Recommendation")
+    btn.click(recommend_api, inputs=[risk, horizon, amount], outputs=output)
+
+demo.queue()   # enables API calls
+if __name__ == "__main__":
+    demo.launch()
