@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { TrendingUp } from "lucide-react"
 import { useEffect, useState } from "react"
 import { LoginModal } from "./loginModal"
+import { SignupModal } from "./signupModal"
 
 export function Header() {
   const [userId, setUserId] = useState<string | null>(null)
@@ -21,6 +22,10 @@ export function Header() {
   }, [])
 
   const handleLoginSuccess = (newUserId: string) => {
+    setUserId(newUserId)
+  }
+
+  const handleSignupSuccess = (newUserId: string) => {
     setUserId(newUserId)
   }
 
@@ -67,7 +72,7 @@ export function Header() {
           ) : (
             <>
               <LoginModal onLoginSuccess={handleLoginSuccess} />
-              <Button>Sign Up</Button>
+              <SignupModal onSignupSuccess={handleSignupSuccess} />
             </>
           )}
         </div>
