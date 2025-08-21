@@ -44,9 +44,8 @@ yarn install
 Setup environment variables
 Create a .env file in the root directory:
 
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_key
-YAHOO_FINANCE_API_KEY=your_api_key
+BACKEND_API_URL=your_deployed_url
+ML_MODEL_API=your_deployed_model_url
 
 
 Run development server
