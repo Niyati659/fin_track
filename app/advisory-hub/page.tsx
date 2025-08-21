@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import { TrendingUp, DollarSign, Target, Clock, Loader2 } from "lucide-react"
+import { TrendingUp,Target, Clock, Loader2, IndianRupee } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -189,7 +189,7 @@ export default function AdvisoryHubPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="amount">Investment Amount ($)</Label>
+                    <Label htmlFor="amount">Investment Amount (<IndianRupee className="h-4 w-4" />)</Label>
                     <Input
                       id="amount"
                       type="number"
@@ -256,7 +256,7 @@ export default function AdvisoryHubPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <DollarSign className="h-5 w-5" />
+                      <IndianRupee className="h-5 w-5" />
                       Mutual Fund Recommendations
                     </CardTitle>
                     <CardDescription>Category: {recommendations.mutualFunds.category}</CardDescription>

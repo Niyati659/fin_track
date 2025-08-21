@@ -34,6 +34,7 @@ export function Header() {
     localStorage.removeItem('username')
     setUserId(null)
     setUsername(null)
+    window.location.reload()
   }  
   return (
     <header className="border-b bg-card">

@@ -99,7 +99,7 @@ export function Footer() {
 
         <div className="border-t mt-8 pt-8 text-center">
           <p className="text-muted-foreground">
-            © 2024 FinTrack. All rights reserved. Built with ❤️ for better financial management.
+            © 2025 FinTrack. All rights reserved. Built with for better financial management.
           </p>
         </div>
       </div>

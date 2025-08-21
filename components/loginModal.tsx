@@ -47,6 +47,7 @@ export function LoginModal({ onLoginSuccess }: LoginModalProps) {
       localStorage.setItem('username', username)
       onLoginSuccess(data.user.id)
       setOpen(false) // Close the modal
+      window.location.reload()
       
     } catch (error: any) {
       setError(error.message)

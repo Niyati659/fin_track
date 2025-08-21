@@ -6,14 +6,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { PlusCircle, MinusCircle, DollarSign } from "lucide-react"
+import { PlusCircle, MinusCircle,IndianRupee } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 export function QuickActions() {
   const [incomeAmount, setIncomeAmount] = useState("")
   const [expenseAmount, setExpenseAmount] = useState("")
   const [expenseCategory, setExpenseCategory] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [loadingIncome, setLoadingIncome] = useState(false)
+  const [loadingExpense, setLoadingExpense] = useState(false)
   const { toast } = useToast()
 
   const handleAddIncome = async () => {
@@ -26,7 +27,7 @@ export function QuickActions() {
       return
     }
 
-    setLoading(true)
+    setLoadingIncome(true)
     try {
       const response = await fetch("/api/add-income", {
         method: "POST",
@@ -47,6 +48,8 @@ export function QuickActions() {
       } else {
         throw new Error("Failed to add income")
       }
+
+      window.location.reload()
     } catch (error) {
       toast({
         title: "Error",
@@ -54,7 +57,7 @@ export function QuickActions() {
         variant: "destructive",
       })
     } finally {
-      setLoading(false)
+      setLoadingIncome(false)
     }
   }
 
@@ -68,7 +71,7 @@ export function QuickActions() {
       return
     }
     console.log(localStorage.getItem('userId'),expenseAmount, expenseCategory)
-    setLoading(true)
+    setLoadingExpense(true)
     try {
       const response = await fetch("/api/add-expense", {
         method: "POST",
@@ -90,6 +93,7 @@ export function QuickActions() {
       } else {
         throw new Error("Failed to add expense")
       }
+      window.location.reload()
     } catch (error) {
       toast({
         title: "Error",
@@ -97,7 +101,7 @@ export function QuickActions() {
         variant: "destructive",
       })
     } finally {
-      setLoading(false)
+      setLoadingExpense(false)
     }
   }
 
@@ -123,7 +127,7 @@ export function QuickActions() {
               <div>
                 <Label htmlFor="income-amount">Amount</Label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="income-amount"
                     type="number"
@@ -134,8 +138,8 @@ export function QuickActions() {
                   />
                 </div>
               </div>
-              <Button onClick={handleAddIncome} disabled={loading} className="w-full">
-                {loading ? "Adding..." : "Add Income"}
+              <Button onClick={handleAddIncome} disabled={loadingIncome} className="w-full">
+                {loadingIncome ? "Adding..." : "Add Income"}
               </Button>
             </CardContent>
           </Card>
@@ -153,7 +157,7 @@ export function QuickActions() {
               <div>
                 <Label htmlFor="expense-amount">Amount</Label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="expense-amount"
                     type="number"
@@ -182,8 +186,8 @@ export function QuickActions() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={handleAddExpense} disabled={loading} className="w-full">
-                {loading ? "Adding..." : "Add Expense"}
+              <Button onClick={handleAddExpense} disabled={loadingExpense} className="w-full">
+                {loadingExpense ? "Adding..." : "Add Expense"}
               </Button>
             </CardContent>
           </Card>

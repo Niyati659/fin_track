@@ -51,6 +51,7 @@ export function SignupModal({ onSignupSuccess }: SignupModalProps) {
       localStorage.setItem('username', username)
       onSignupSuccess(data.user.id)
       setOpen(false)
+      window.location.reload()
       
     } catch (error: any) {
       console.error("Signup error:", error)

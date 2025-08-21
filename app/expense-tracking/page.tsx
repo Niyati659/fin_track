@@ -40,11 +40,12 @@ export default function ExpenseTrackingPage() {
     }
   }
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
+  function formatCurrency(amount: number) {
+    return new Intl.NumberFormat("en-IN", {
       style: "currency",
-      currency: "USD",
-    }).format(amount)
+      currency: "INR",
+      maximumFractionDigits: 2,
+    }).format(amount);
   }
 
   if (loading) {
@@ -130,7 +131,7 @@ export default function ExpenseTrackingPage() {
                     tick={{ fill: "#9CA3AF" }}
                   />
                   <YAxis
-                    tickFormatter={(value) => `$${value}`}
+                    tickFormatter={(value) => `${value}`}
                     fontSize={13}
                     tick={{ fill: "#9CA3AF" }}
                   />

@@ -1,7 +1,16 @@
+'use client'
+
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 
 export function HeroSection() {
+  const scrollToFinancialOverview = () => {
+    const element = document.getElementById('financial-overview')
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
   return (
     <section className="py-20 px-4">
       <div className="container mx-auto text-center max-w-4xl">
@@ -9,18 +18,17 @@ export function HeroSection() {
           Take Control of Your
           <span className="text-primary block">Financial Future</span>
         </h1>
-        <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-          Track expenses, manage savings, and get AI-powered insights to make smarter financial decisions.
+        <p className="text-xl text-muted-foreground mb-8">
+          Track expenses, manage savings, and get AI-powered insights
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button size="lg" className="text-lg px-8">
-            Start Tracking Now
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
-          <Button variant="outline" size="lg" className="text-lg px-8 bg-transparent">
-            Watch Demo
-          </Button>
-        </div>
+        <Button 
+          size="lg" 
+          className="text-lg px-8"
+          onClick={scrollToFinancialOverview}
+        >
+          Start Tracking Now
+          <ArrowRight className="ml-2 h-5 w-5" />
+        </Button>
       </div>
     </section>
   )
