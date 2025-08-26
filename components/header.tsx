@@ -49,8 +49,8 @@ export function Header() {
           <a href="/expense-tracking" className="text-muted-foreground hover:text-foreground transition-colors">
             Expense Tracking
           </a>
-          <a href="/dashboards" className="text-muted-foreground hover:text-foreground transition-colors">
-            Dashboards
+          <a href="/saving-goals" className="text-muted-foreground hover:text-foreground transition-colors">
+            Saving Goals
           </a>
           <a href="/advisory-hub" className="text-muted-foreground hover:text-foreground transition-colors">
             Advisory Hub
