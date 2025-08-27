@@ -6,7 +6,11 @@ import {
   addExpenses,
   getExpenses,
   getIncome,
-  deleteUser
+  deleteUser,
+  addSavingGoal,
+  addTransaction,
+  findAllGoals, // Import the findAllGoals function
+  getTransaction // Import the getTransaction function
 } from '../fintrackFunctions.js';
 
 const router = express.Router();
@@ -65,6 +69,75 @@ router.delete('/deleteUser/:id', async (req, res) => {
   const { error } = await deleteUser(req.params.id);
   if (error) return res.status(400).json({ error: error.message });
   res.json({ message: 'User deleted' });
+});
+
+router.post('/addSavingGoal', async (req, res) => {
+  const { user_id, goal_name, target_amount} = req.body;
+
+  if (!user_id || !goal_name || !target_amount) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  const { data, error } = await addSavingGoal(req.body);
+  if (error) return res.status(400).json({ error: error.message });
+  res.status(201).json(data);
+});
+
+// 8. Add transaction to a goal
+router.post('/addTransaction', async (req, res) => {
+  const { goal_id, user_id, amount } = req.body;
+
+  // Validate input
+  if (!goal_id || !user_id || !amount) {
+    return res.status(400).json({ error: 'Goal ID, User ID, and Amount are required' });
+  }
+
+  // Call the addTransaction function
+  const result = await addTransaction({ goal_id, user_id, amount });
+
+  if (result.error) {
+    return res.status(400).json({ error: result.error.message });
+  }
+
+  res.status(201).json({ message: 'Transaction added successfully' });
+});
+
+// 9. Find all goals for a user
+router.get('/findAllGoals/:user_id', async (req, res) => {
+  const { user_id } = req.params;
+
+  // Validate input
+  if (!user_id) {
+    return res.status(400).json({ error: 'User ID is required' });
+  }
+
+  // Call the findAllGoals function
+  const { data, error } = await findAllGoals(user_id);
+
+  if (error) {
+    return res.status(400).json({ error: error.message });
+  }
+
+  res.json(data);
+});
+
+// 10. Get transaction for a user by user_id and created_at
+router.get('/getTransaction', async (req, res) => {
+  const { user_id } = req.query;
+
+  // Validate input
+  if (!user_id) {
+    return res.status(400).json({ error: 'User ID is required' });
+  }
+
+  // Call the getTransaction function
+  const { data, error } = await getTransaction({ user_id });
+
+  if (error) {
+    return res.status(400).json({ error: error.message });
+  }
+
+  res.json(data);
 });
 
 export default router;

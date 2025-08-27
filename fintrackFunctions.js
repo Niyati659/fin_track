@@ -121,3 +121,123 @@ export async function getIncome(user_id) {
 export async function deleteUser(id) {
   return await supabase.from('Users').delete().eq('id', id);
 }
+
+// 8. Add saving goal
+export async function addSavingGoal({ user_id, goal_name, target_amount}) {
+  // Insert the saving goal into the database
+  const { data, error } = await supabase
+    .from('goals')
+    .insert([
+      {
+        user_id: user_id,
+        goal_name: goal_name,
+        target_amount: target_amount,
+      },
+    ]);
+
+  if (error) return { error };
+  return { data };
+}
+
+// 9. Add transaction to a goal
+export async function addTransaction({ goal_id, user_id, amount }) {
+  // Step 1: Update the invested_amount in the goals table
+  const { data: goalData, error: goalError } = await supabase
+    .from('goals')
+    .select('invested_amount')
+    .eq('goal_id', goal_id)
+    .single();
+
+  if (goalError) return { error: goalError };
+  const updatedInvestedAmount = goalData.invested_amount + amount;
+
+  const { error: updateGoalError } = await supabase
+    .from('goals')
+    .update({ invested_amount: updatedInvestedAmount })
+    .eq('goal_id', goal_id);
+
+  if (updateGoalError) return { error: updateGoalError };
+
+  // Step 2: Update the goal_transactions table
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth() + 1; // getMonth() is 0-based
+
+  // Check if a transaction for the same user and month/year exists
+  const { data: existingTransactions, error: transactionError } = await supabase
+    .from('goal_transactions')
+    .select('*')
+    .eq('user_id', user_id);
+
+  if (transactionError) return { error: transactionError };
+
+  const existingTransaction = existingTransactions.find(transaction => {
+    const createdAt = new Date(transaction.created_at);
+    return (
+      createdAt.getFullYear() === currentYear &&
+      createdAt.getMonth() + 1 === currentMonth
+    );
+  });
+
+  if (existingTransaction) {
+    // Update the existing transaction
+    const { error: updateTransactionError } = await supabase
+      .from('goal_transactions')
+      .update({ amount: existingTransaction.amount + amount })
+      .eq('transaction_id', existingTransaction.transaction_id);
+
+    if (updateTransactionError) return { error: updateTransactionError };
+  } else {
+    // Insert a new transaction
+    const { error: insertTransactionError } = await supabase
+      .from('goal_transactions')
+      .insert([{ user_id: user_id, amount: amount }]);
+
+    if (insertTransactionError) return { error: insertTransactionError };
+  }
+
+  return { message: 'Transaction added successfully' };
+}
+
+// 10. Find all goals for a user
+export async function findAllGoals(user_id) {
+  const { data, error } = await supabase
+    .from('goals')
+    .select('goal_name, target_amount, invested_amount')
+    .eq('user_id', user_id);
+
+  if (error) return { error };
+  return { data };
+}
+
+// 11. Get transaction for a user by user_id and created_at
+export async function getTransaction({ user_id}) {
+  // Extract year and month from the provided date
+  const inputDate = new Date();
+  const inputYear = inputDate.getFullYear();
+  const inputMonth = inputDate.getMonth() + 1; // getMonth() is 0-based
+
+  // Query the goal_transactions table
+  const { data, error } = await supabase
+    .from('goal_transactions')
+    .select('amount, created_at')
+    .eq('user_id', user_id);
+
+  if (error) return { error };
+
+  // Check if any entry matches the same month and year
+  const match = data.find(transaction => {
+    const createdAt = new Date(transaction.created_at);
+    return (
+      createdAt.getFullYear() === inputYear &&
+      createdAt.getMonth() + 1 === inputMonth
+    );
+  });
+
+  // Return the amount if a match is found, otherwise return 0
+  if (match) {
+    return { data: { amount: match.amount } };
+  } else {
+    return { data: { amount: 0 } };
+  }
+}
