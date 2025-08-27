@@ -193,7 +193,7 @@ export async function addTransaction({ goal_id, user_id, amount }) {
     const { error: updateTransactionError } = await supabase
       .from('goal_transactions')
       .update({ amount: existingTransaction.amount + amount })
-      .eq('transaction_id', existingTransaction.transaction_id);
+      .eq('id', existingTransaction.id);
 
     if (updateTransactionError) return { error: updateTransactionError };
   } else {
