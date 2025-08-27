@@ -72,15 +72,22 @@ router.delete('/deleteUser/:id', async (req, res) => {
 });
 
 router.post('/addSavingGoal', async (req, res) => {
-  const { user_id, goal_name, target_amount} = req.body;
+  const { user_id, goal_name, target_amount } = req.body;
+
+  console.log('Request to add saving goal:', req.body); // Debugging log
 
   if (!user_id || !goal_name || !target_amount) {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
-  const { data, error } = await addSavingGoal(req.body);
-  if (error) return res.status(400).json({ error: error.message });
-  res.status(201).json(data);
+  const { goal_id, error } = await addSavingGoal(req.body);
+
+  if (error) {
+    console.error('Error in addSavingGoal:', error); // Log the error
+    return res.status(500).json({ error: error.message || 'Internal Server Error' });
+  }
+
+  res.status(201).json({ goal_id });
 });
 
 // 8. Add transaction to a goal

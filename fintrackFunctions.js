@@ -249,4 +249,21 @@ export async function getTransaction({ user_id}) {
     .select('amount, created_at')
     .eq('user_id', user_id);
 
-  if
+  if (error) return { error };
+
+  // Check if any entry matches the same month and year
+  const match = data.find(transaction => {
+    const createdAt = new Date(transaction.created_at);
+    return (
+      createdAt.getFullYear() === inputYear &&
+      createdAt.getMonth() + 1 === inputMonth
+    );
+  });
+
+  // Return the amount if a match is found, otherwise return 0
+  if (match) {
+    return { data: { amount: match.amount } };
+  } else {
+    return { data: { amount: 0 } };
+  }
+}
