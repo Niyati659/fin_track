@@ -135,8 +135,16 @@ export async function addSavingGoal({ user_id, goal_name, target_amount}) {
       },
     ]);
 
-  if (error) return { error };
-  return { data };
+    const { data1, error1 } = await supabase
+    .from('goals')
+    .select('goal_id')
+    .eq('user_id', user_id)
+    .eq('goal_name', goal_name);
+
+
+  
+  if (error || error1) return { error: error || error1 };
+  return { goal_id: data1[0]?.goal_id };
 }
 
 // 9. Add transaction to a goal
