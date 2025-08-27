@@ -123,7 +123,9 @@ export async function deleteUser(id) {
 }
 
 // 8. Add saving goal
-export async function addSavingGoal({ user_id, goal_name, target_amount}) {
+export async function addSavingGoal({ user_id, goal_name, target_amount }) {
+  console.log('Adding saving goal:', { user_id, goal_name, target_amount }); // Debugging log
+
   // Insert the saving goal into the database
   const { data, error } = await supabase
     .from('goals')
@@ -135,15 +137,31 @@ export async function addSavingGoal({ user_id, goal_name, target_amount}) {
       },
     ]);
 
-    const { data1, error1 } = await supabase
+  if (error) {
+    console.error('Error inserting saving goal:', error); // Log the error
+    return { error };
+  }
+
+  // Fetch the goal_id for the newly added goal
+  const { data1, error1 } = await supabase
     .from('goals')
     .select('goal_id')
     .eq('user_id', user_id)
     .eq('goal_name', goal_name);
 
+  console.log('Select query result:', data1); // Debugging log
+  console.error('Select query error:', error1); // Debugging log
 
-  
-  if (error || error1) return { error: error || error1 };
+  if (error1) {
+    return { error: error1 };
+  }
+
+  if (!data1 || data1.length === 0) {
+    console.error('No goal_id found for the inserted goal'); // Log if no data is found
+    return { error: { message: 'Goal ID not found' } };
+  }
+
+  console.log('Saving goal added successfully:', data1[0]); // Log the result
   return { goal_id: data1[0]?.goal_id };
 }
 
@@ -231,21 +249,4 @@ export async function getTransaction({ user_id}) {
     .select('amount, created_at')
     .eq('user_id', user_id);
 
-  if (error) return { error };
-
-  // Check if any entry matches the same month and year
-  const match = data.find(transaction => {
-    const createdAt = new Date(transaction.created_at);
-    return (
-      createdAt.getFullYear() === inputYear &&
-      createdAt.getMonth() + 1 === inputMonth
-    );
-  });
-
-  // Return the amount if a match is found, otherwise return 0
-  if (match) {
-    return { data: { amount: match.amount } };
-  } else {
-    return { data: { amount: 0 } };
-  }
-}
+  if
