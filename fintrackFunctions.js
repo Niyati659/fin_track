@@ -126,7 +126,7 @@ export async function deleteUser(id) {
 export async function addSavingGoal({ user_id, goal_name, target_amount }) {
   console.log('Adding saving goal:', { user_id, goal_name, target_amount }); // Debugging log
 
-  // Insert the saving goal into the database
+  // Insert the saving goal into the database and return the goal_id
   const { data, error } = await supabase
     .from('goals')
     .insert([
@@ -135,34 +135,17 @@ export async function addSavingGoal({ user_id, goal_name, target_amount }) {
         goal_name: goal_name,
         target_amount: target_amount,
       },
-    ]);
+    ])
+    .select('goal_id') // Use select to return the goal_id directly
+    .single(); // Ensure a single object is returned
 
   if (error) {
     console.error('Error inserting saving goal:', error); // Log the error
     return { error };
   }
 
-  // Fetch the goal_id for the newly added goal
-  const { data1, error1 } = await supabase
-    .from('goals')
-    .select('goal_id')
-    .eq('user_id', user_id)
-    .eq('goal_name', goal_name);
-
-  console.log('Select query result:', data1); // Debugging log
-  console.error('Select query error:', error1); // Debugging log
-
-  if (error1) {
-    return { error: error1 };
-  }
-
-  if (!data1 || data1.length === 0) {
-    console.error('No goal_id found for the inserted goal'); // Log if no data is found
-    return { error: { message: 'Goal ID not found' } };
-  }
-
-  console.log('Saving goal added successfully:', data1[0]); // Log the result
-  return { goal_id: data1[0]?.goal_id };
+  console.log('Saving goal added successfully:', data); // Log the result
+  return { goal_id: data.goal_id };
 }
 
 // 9. Add transaction to a goal

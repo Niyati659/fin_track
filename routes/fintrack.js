@@ -71,6 +71,7 @@ router.delete('/deleteUser/:id', async (req, res) => {
   res.json({ message: 'User deleted' });
 });
 
+// 8. Add saving goal
 router.post('/addSavingGoal', async (req, res) => {
   const { user_id, goal_name, target_amount } = req.body;
 
@@ -90,7 +91,7 @@ router.post('/addSavingGoal', async (req, res) => {
   res.status(201).json({ goal_id });
 });
 
-// 8. Add transaction to a goal
+// 9. Add transaction to a goal
 router.post('/addTransaction', async (req, res) => {
   const { goal_id, user_id, amount } = req.body;
 
@@ -109,7 +110,7 @@ router.post('/addTransaction', async (req, res) => {
   res.status(201).json({ message: 'Transaction added successfully' });
 });
 
-// 9. Find all goals for a user
+// 10. Find all goals for a user
 router.get('/findAllGoals/:user_id', async (req, res) => {
   const { user_id } = req.params;
 
@@ -128,7 +129,7 @@ router.get('/findAllGoals/:user_id', async (req, res) => {
   res.json(data);
 });
 
-// 10. Get transaction for a user by user_id and created_at
+// 11. Get transaction for a user by user_id and created_at
 router.get('/getTransaction', async (req, res) => {
   const { user_id } = req.query;
 
