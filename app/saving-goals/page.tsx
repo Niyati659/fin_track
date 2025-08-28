@@ -1,11 +1,10 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
+import { useEffect, useState } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
@@ -13,40 +12,43 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Plus, PiggyBank } from "lucide-react";
+} from "@/components/ui/dialog"
+import { Plus, PiggyBank, Target, TrendingUp, DollarSign } from "lucide-react"
 
 interface SavingsGoal {
-  id: string;
-  goal_name: string;
-  target_amount: number;
-  invested_amount: number;
+  id: string
+  goal_name: string
+  target_amount: number
+  invested_amount: number
 }
 
 export default function SavingsGoalsPage() {
-  const [goals, setGoals] = useState<SavingsGoal[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
+  const [goals, setGoals] = useState<SavingsGoal[]>([])
+  const [loading, setLoading] = useState(true)
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [selectedGoal, setSelectedGoal] = useState<string | null>(null)
 
   // Form states
-  const [newGoalName, setNewGoalName] = useState("");
-  const [newGoalTarget, setNewGoalTarget] = useState("");
-  const [addFundAmount, setAddFundAmount] = useState("");
+  const [newGoalName, setNewGoalName] = useState("")
+  const [newGoalTarget, setNewGoalTarget] = useState("")
+  const [addFundAmount, setAddFundAmount] = useState("")
 
-  const user_id = localStorage.getItem("userId");
+  const user_id = localStorage.getItem("userId")
 
   useEffect(() => {
-    fetchSavingsData();
-  }, []);
+    fetchSavingsData()
+    if (!localStorage.getItem("userId")) {
+      localStorage.setItem("userId", `user_${Date.now()}`)
+    }
+  }, [])
 
   const fetchSavingsData = async () => {
-    const user_id = localStorage.getItem("userId");
+    const user_id = localStorage.getItem("userId")
     try {
-      const response = await fetch(`/api/saving-goals?user_id=${user_id}`);
+      const response = await fetch(`/api/saving-goals?user_id=${user_id}`)
       if (response.ok) {
-        const data = await response.json();
-        console.log("Fetched Data:", data); // Debugging log
+        const data = await response.json()
+        console.log("Fetched Data:", data) // Debugging log
 
         // Map the fetched data to the SavingsGoal interface
         const mappedGoals = data.map((goal: any) => ({
@@ -54,24 +56,24 @@ export default function SavingsGoalsPage() {
           goal_name: goal.goal_name,
           target_amount: goal.target_amount,
           invested_amount: goal.invested_amount,
-        }));
+        }))
 
-        console.log("Mapped Goals:", mappedGoals); // Debugging log
+        console.log("Mapped Goals:", mappedGoals) // Debugging log
 
-        setGoals(mappedGoals); // Update the goals state
+        setGoals(mappedGoals) // Update the goals state
       } else {
-        console.error("Failed to fetch savings data:", await response.text());
+        console.error("Failed to fetch savings data:", await response.text())
       }
     } catch (error) {
-      console.error("Failed to fetch savings data:", error);
+      console.error("Failed to fetch savings data:", error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const createNewGoal = async () => {
     try {
-      setLoading(true);
+      setLoading(true)
 
       const response = await fetch("/api/saving-goals", {
         method: "POST",
@@ -81,12 +83,12 @@ export default function SavingsGoalsPage() {
           target_amount: Number(newGoalTarget),
           user_id: user_id,
         }),
-      });
+      })
 
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.json()
 
-        console.log("Goal created with ID:", data.goal_id);
+        console.log("Goal created with ID:", data.goal_id)
 
         // Dynamically update the goals state
         setGoals((prevGoals) => [
@@ -97,23 +99,23 @@ export default function SavingsGoalsPage() {
             target_amount: Number(newGoalTarget),
             invested_amount: 0,
           },
-        ]);
+        ])
 
         // Reset form fields
-        setNewGoalName("");
-        setNewGoalTarget("");
+        setNewGoalName("")
+        setNewGoalTarget("")
 
         // Close the dialog
-        setIsCreateDialogOpen(false);
+        setIsCreateDialogOpen(false)
       } else {
-        console.error("Failed to create goal:", await response.text());
+        console.error("Failed to create goal:", await response.text())
       }
     } catch (error) {
-      console.error("Failed to create goal:", error);
+      console.error("Failed to create goal:", error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const addFundsToGoal = async (goalId: string) => {
     try {
@@ -121,138 +123,229 @@ export default function SavingsGoalsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount: Number.parseFloat(addFundAmount) }),
-      });
+      })
 
       if (response.ok) {
-        await fetchSavingsData();
-        setSelectedGoal(null);
-        setAddFundAmount("");
+        await fetchSavingsData()
+        setSelectedGoal(null)
+        setAddFundAmount("")
       }
     } catch (error) {
-      console.error("Failed to add funds:", error);
+      console.error("Failed to add funds:", error)
     }
-  };
+  }
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
-    }).format(amount);
-  };
+    }).format(amount)
+  }
 
   const calculateProgress = (current: number, target: number) => {
-    return Math.min((current / target) * 100, 100);
-  };
+    return Math.min((current / target) * 100, 100)
+  }
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="container mx-auto max-w-7xl py-16 px-4">
+        <div className="flex justify-between items-center mb-8">
+          <div className="h-9 w-48 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+          <div className="h-10 w-36 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+        </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-80 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse" />
+          ))}
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="container mx-auto max-w-7xl py-16 px-4">
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-bold">Your Goals</h2>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>Create New Goal</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New Savings Goal</DialogTitle>
-            </DialogHeader>
-            <div>
-              <Label>Goal Name</Label>
-              <Input value={newGoalName} onChange={(e) => setNewGoalName(e.target.value)} />
-              <Label>Target Amount</Label>
-              <Input value={newGoalTarget} onChange={(e) => setNewGoalTarget(e.target.value)} />
-              <Button onClick={createNewGoal}>Create Goal</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {goals.length === 0 ? (
-        <div className="bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-950/50 dark:to-blue-950/20 rounded-2xl p-12 text-center">
-          <div
-            className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center"
-            style={{ background: "#5A6CFF" }}
-          >
-            <PiggyBank className="h-10 w-10 text-white" />
+    <div className="min-h-screen bg-black">
+      <div className="container mx-auto max-w-7xl py-16 px-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12">
+          <div>
+            <h1 className="text-4xl font-bold text-balance mb-2 text-white">Your Savings Goals</h1>
+            <p className="text-gray-400 text-lg">Track your progress and achieve your financial dreams</p>
           </div>
-          <h3 className="text-2xl font-bold mb-2">No Goals Yet</h3>
-          <p className="text-muted-foreground text-lg">
-            Create your first savings goal to start tracking your financial progress.
-          </p>
-        </div>
-      ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {goals.map((goal) => {
-            const progress = calculateProgress(goal.invested_amount, goal.target_amount);
-
-            return (
-              <Card
-                key={goal.id}
-                className="border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 shadow-lg hover:shadow-xl transition-all duration-200 overflow-hidden"
-              >
-                <CardHeader className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 dark:from-blue-500/20 dark:to-purple-500/20">
-                  <CardTitle className="flex items-center justify-between">
-                    <span className="truncate text-lg font-bold">{goal.goal_name}</span>
-                  </CardTitle>
-                  <CardDescription className="flex items-center gap-2 text-base">
-                    <span className="text-sm text-muted-foreground font-medium">Target:</span>
-                    <span className="font-bold">{formatCurrency(goal.target_amount)}</span>
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6 p-6">
-                  <div>
-                    <div className="flex justify-between text-sm mb-3">
-                      <span className="font-medium">Progress</span>
-                      <span className="font-bold text-lg">{progress.toFixed(1)}%</span>
-                    </div>
-                    <div className="relative">
-                      <Progress value={progress} className="h-3 bg-gray-200 dark:bg-gray-700" />
-                      <div
-                        className="absolute top-0 left-0 h-3 rounded-full transition-all duration-500"
-                        style={{ width: `${Math.min(progress, 100)}%`, background: "#5A6CFF" }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground font-medium">Invested:</span>
-                      <span className="font-bold text-green-600 dark:text-green-400">
-                        {formatCurrency(goal.invested_amount)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground font-medium">Remaining:</span>
-                      <span className="font-bold text-orange-600 dark:text-orange-400">
-                        {formatCurrency(goal.target_amount - goal.invested_amount)}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center mt-4">
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="lg" className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg">
+                <Plus className="h-5 w-5 mr-2" />
+                Create New Goal
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader className="space-y-3">
+                <DialogTitle className="text-2xl font-bold">Create New Savings Goal</DialogTitle>
+                <DialogDescription className="text-base">
+                  Set a target amount and start saving towards your financial goal.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-6 pt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="goal-name" className="text-sm font-medium">
+                    Goal Name
+                  </Label>
+                  <Input
+                    id="goal-name"
+                    placeholder="e.g., Emergency Fund, Vacation, New Car"
+                    value={newGoalName}
+                    onChange={(e) => setNewGoalName(e.target.value)}
+                    className="h-11"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="target-amount" className="text-sm font-medium">
+                    Target Amount
+                  </Label>
+                  <div className="relative">
+                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
-                      placeholder="Add funds"
-                      value={addFundAmount}
-                      onChange={(e) => setAddFundAmount(e.target.value)}
-                      className="w-2/3"
+                      id="target-amount"
+                      type="number"
+                      placeholder="10000"
+                      value={newGoalTarget}
+                      onChange={(e) => setNewGoalTarget(e.target.value)}
+                      className="h-11 pl-10"
                     />
-                    <Button
-                      onClick={() => addFundsToGoal(goal.id)}
-                      className="w-1/3 bg-blue-500 text-white"
-                    >
-                      Add Funds
-                    </Button>
                   </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                </div>
+                <Button
+                  onClick={createNewGoal}
+                  className="w-full h-11 bg-indigo-600 hover:bg-indigo-700"
+                  disabled={!newGoalName || !newGoalTarget}
+                >
+                  <Target className="h-4 w-4 mr-2" />
+                  Create Goal
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
-      )}
+
+        {goals.length === 0 ? (
+          <div className="bg-gray-900/50 rounded-3xl p-16 text-center border border-gray-800">
+            <div className="w-24 h-24 rounded-full mx-auto mb-8 flex items-center justify-center bg-indigo-600 shadow-lg">
+              <PiggyBank className="h-12 w-12 text-white" />
+            </div>
+            <h3 className="text-3xl font-bold mb-4 text-balance text-white">Start Your Savings Journey</h3>
+            <p className="text-gray-400 text-xl max-w-md mx-auto text-pretty">
+              Create your first savings goal to begin tracking your financial progress and turn your dreams into
+              achievable targets.
+            </p>
+            <Button
+              onClick={() => setIsCreateDialogOpen(true)}
+              size="lg"
+              className="mt-8 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg"
+            >
+              <Plus className="h-5 w-5 mr-2" />
+              Create Your First Goal
+            </Button>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {goals.map((goal) => {
+              const progress = calculateProgress(goal.invested_amount, goal.target_amount)
+              const isCompleted = progress >= 100
+
+              return (
+                <Card
+                  key={goal.id}
+                  className={`group border-0 bg-gray-900/80 backdrop-blur-sm shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-800 ${
+                    isCompleted ? "ring-2 ring-green-500/20" : ""
+                  }`}
+                >
+                  <CardHeader className="bg-gray-800/50 pb-4">
+                    <CardTitle className="flex items-start justify-between gap-3">
+                      <span className="text-xl font-bold text-balance leading-tight text-white">{goal.goal_name}</span>
+                      {isCompleted && (
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+                          <TrendingUp className="h-4 w-4 text-white" />
+                        </div>
+                      )}
+                    </CardTitle>
+                    <CardDescription className="flex items-center gap-2 text-base pt-1">
+                      <Target className="h-4 w-4 text-gray-400" />
+                      <span className="text-sm text-gray-400 font-medium">Target:</span>
+                      <span className="font-bold text-lg text-white">{formatCurrency(goal.target_amount)}</span>
+                    </CardDescription>
+                  </CardHeader>
+
+                  <CardContent className="space-y-6 p-6">
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="font-semibold text-lg text-white">Progress</span>
+                        <div className="text-right">
+                          <div className={`text-2xl font-bold ${isCompleted ? "text-green-400" : "text-indigo-400"}`}>
+                            {progress.toFixed(1)}%
+                          </div>
+                          {isCompleted && <span className="text-xs text-green-400 font-medium">Completed!</span>}
+                        </div>
+                      </div>
+
+                      <div className="relative">
+                        <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full transition-all duration-700 ease-out rounded-full ${
+                              isCompleted ? "bg-green-500" : "bg-indigo-500"
+                            }`}
+                            style={{ width: `${Math.min(progress, 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-green-950/40 rounded-xl p-4 border border-green-900/40">
+                        <div className="text-xs text-green-400 font-medium uppercase tracking-wide mb-1">Saved</div>
+                        <div className="font-bold text-lg text-green-300">{formatCurrency(goal.invested_amount)}</div>
+                      </div>
+
+                      <div className="bg-orange-950/40 rounded-xl p-4 border border-orange-900/40">
+                        <div className="text-xs text-orange-400 font-medium uppercase tracking-wide mb-1">
+                          Remaining
+                        </div>
+                        <div className="font-bold text-lg text-orange-300">
+                          {formatCurrency(Math.max(0, goal.target_amount - goal.invested_amount))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {!isCompleted && (
+                      <div className="space-y-3 pt-2">
+                        <Label className="text-sm font-medium text-white">Add Funds</Label>
+                        <div className="flex gap-3">
+                          <div className="relative flex-1">
+                            <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <Input
+                              type="number"
+                              placeholder="Amount"
+                              value={addFundAmount}
+                              onChange={(e) => setAddFundAmount(e.target.value)}
+                              className="pl-10 h-11 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+                            />
+                          </div>
+                          <Button
+                            onClick={() => addFundsToGoal(goal.id)}
+                            disabled={!addFundAmount || Number(addFundAmount) <= 0}
+                            className="h-11 px-6 bg-indigo-600 hover:bg-indigo-700"
+                          >
+                            Add
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+        )}
+      </div>
     </div>
-  );
+  )
 }
+
