@@ -212,7 +212,7 @@ export async function addTransaction({ goal_id, user_id, amount }) {
 export async function findAllGoals(user_id) {
   const { data, error } = await supabase
     .from('goals')
-    .select('goal_name, target_amount, invested_amount')
+    .select('goal_id,goal_name, target_amount, invested_amount')
     .eq('user_id', user_id);
 
   if (error) return { error };
