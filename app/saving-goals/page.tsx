@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -12,110 +12,100 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Plus, PiggyBank, Target, TrendingUp, DollarSign } from "lucide-react"
+} from "@/components/ui/dialog";
+import { Plus, PiggyBank, Target, DollarSign, TrendingUp } from "lucide-react";
 
 interface SavingsGoal {
-  id: string
-  goal_name: string
-  target_amount: number
-  invested_amount: number
+  id: string;
+  goal_name: string;
+  target_amount: number;
+  invested_amount: number;
 }
 
 export default function SavingsGoalsPage() {
-  const [goals, setGoals] = useState<SavingsGoal[]>([])
-  const [loading, setLoading] = useState(true)
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
-  const [selectedGoal, setSelectedGoal] = useState<string | null>(null)
+  const [goals, setGoals] = useState<SavingsGoal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   // Form states
-  const [newGoalName, setNewGoalName] = useState("")
-  const [newGoalTarget, setNewGoalTarget] = useState("")
-  const [addFundAmount, setAddFundAmount] = useState("")
-
-  const user_id = localStorage.getItem("userId")
+  const [newGoalName, setNewGoalName] = useState("");
+  const [newGoalTarget, setNewGoalTarget] = useState("");
+  const [addFundAmount, setAddFundAmount] = useState("");
 
   useEffect(() => {
-    fetchSavingsData()
-    if (!localStorage.getItem("userId")) {
-      localStorage.setItem("userId", `user_${Date.now()}`)
+    // Initialize userId from localStorage or create a new one
+    let storedId = localStorage.getItem("userId");
+    if (!storedId) {
+      storedId = `user_${Date.now()}`;
+      localStorage.setItem("userId", storedId);
     }
-  }, [])
+    setUserId(storedId);
 
-  const fetchSavingsData = async () => {
-    const user_id = localStorage.getItem("userId")
+    // Fetch savings data for the user
+    fetchSavingsData(storedId);
+  }, []);
+
+  const fetchSavingsData = async (id: string) => {
     try {
-      const response = await fetch(`/api/saving-goals?user_id=${user_id}`)
+      const response = await fetch(`/api/saving-goals?user_id=${id}`);
       if (response.ok) {
-        const data = await response.json()
-        console.log("Fetched Data:", data) // Debugging log
-
-        // Map the fetched data to the SavingsGoal interface
+        const data = await response.json();
         const mappedGoals = data.map((goal: any) => ({
           id: goal.goal_id,
           goal_name: goal.goal_name,
           target_amount: goal.target_amount,
           invested_amount: goal.invested_amount,
-        }))
-
-        console.log("Mapped Goals:", mappedGoals) // Debugging log
-
-        setGoals(mappedGoals) // Update the goals state
+        }));
+        setGoals(mappedGoals);
       } else {
-        console.error("Failed to fetch savings data:", await response.text())
+        console.error("Failed to fetch savings data:", await response.text());
       }
     } catch (error) {
-      console.error("Failed to fetch savings data:", error)
+      console.error("Failed to fetch savings data:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const createNewGoal = async () => {
+    if (!userId) return;
     try {
-      setLoading(true)
-
+      setLoading(true);
       const response = await fetch("/api/saving-goals", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           goal_name: newGoalName,
           target_amount: Number(newGoalTarget),
-          user_id: user_id,
+          user_id: userId,
         }),
-      })
+      });
 
       if (response.ok) {
-        const data = await response.json()
-
-        console.log("Goal created with ID:", data.goal_id)
-
-        // Dynamically update the goals state
-        setGoals((prevGoals) => [
-          ...prevGoals,
+        const data = await response.json();
+        setGoals((prev) => [
+          ...prev,
           {
             id: data.goal_id,
             goal_name: newGoalName,
             target_amount: Number(newGoalTarget),
             invested_amount: 0,
           },
-        ])
-
-        // Reset form fields
-        setNewGoalName("")
-        setNewGoalTarget("")
-
-        // Close the dialog
-        setIsCreateDialogOpen(false)
+        ]);
+        setNewGoalName("");
+        setNewGoalTarget("");
+        setIsCreateDialogOpen(false);
       } else {
-        console.error("Failed to create goal:", await response.text())
+        console.error("Failed to create goal:", await response.text());
       }
     } catch (error) {
-      console.error("Failed to create goal:", error)
+      console.error("Failed to create goal:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const addFundsToGoal = async (goalId: string) => {
     try {
@@ -123,28 +113,28 @@ export default function SavingsGoalsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount: Number.parseFloat(addFundAmount) }),
-      })
+      });
 
-      if (response.ok) {
-        await fetchSavingsData()
-        setSelectedGoal(null)
-        setAddFundAmount("")
+      if (response.ok && userId) {
+        await fetchSavingsData(userId);
+        setSelectedGoal(null);
+        setAddFundAmount("");
       }
     } catch (error) {
-      console.error("Failed to add funds:", error)
+      console.error("Failed to add funds:", error);
     }
-  }
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
-    }).format(amount)
-  }
+    }).format(amount);
+  };
 
   const calculateProgress = (current: number, target: number) => {
-    return Math.min((current / target) * 100, 100)
-  }
+    return Math.min((current / target) * 100, 100);
+  };
 
   if (loading) {
     return (
@@ -159,7 +149,7 @@ export default function SavingsGoalsPage() {
           ))}
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -248,8 +238,8 @@ export default function SavingsGoalsPage() {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {goals.map((goal) => {
-              const progress = calculateProgress(goal.invested_amount, goal.target_amount)
-              const isCompleted = progress >= 100
+              const progress = calculateProgress(goal.invested_amount, goal.target_amount);
+              const isCompleted = progress >= 100;
 
               return (
                 <Card
@@ -340,12 +330,12 @@ export default function SavingsGoalsPage() {
                     )}
                   </CardContent>
                 </Card>
-              )
+              );
             })}
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }
 
