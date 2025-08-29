@@ -34,9 +34,6 @@ export default function SavingsGoalsPage() {
   const [newGoalTarget, setNewGoalTarget] = useState("")
   const [addFundAmount, setAddFundAmount] = useState<Record<string, string>>({})
 
-
-  const user_id = localStorage.getItem("userId")
-
   useEffect(() => {
     // Initialize userId from localStorage or create a new one
     let storedId = localStorage.getItem("userId");
@@ -111,6 +108,7 @@ export default function SavingsGoalsPage() {
   };
 
   const addFundsToGoal = async (goalId: string) => {
+  let storedId = localStorage.getItem("userId");
   try {
     const amount = Number.parseFloat(addFundAmount[goalId] || "0")
     if (amount <= 0) return
@@ -118,11 +116,11 @@ export default function SavingsGoalsPage() {
     const response = await fetch(`/api/saving-goals/${goalId}/add-funds`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: amount, user_id: user_id}),
+      body: JSON.stringify({ amount: amount, user_id: storedId}),
     })
 
     if (response.ok) {
-      await fetchSavingsData(user_id||"")
+      await fetchSavingsData(storedId||"")
       setAddFundAmount((prev) => ({ ...prev, [goalId]: "" })) // reset only this goal
     }
   } catch (error) {
