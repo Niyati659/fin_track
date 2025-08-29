@@ -31,7 +31,8 @@ export default function SavingsGoalsPage() {
   // Form states
   const [newGoalName, setNewGoalName] = useState("")
   const [newGoalTarget, setNewGoalTarget] = useState("")
-  const [addFundAmount, setAddFundAmount] = useState("")
+  const [addFundAmount, setAddFundAmount] = useState<Record<string, string>>({})
+
 
   const user_id = localStorage.getItem("userId")
 
@@ -118,22 +119,24 @@ export default function SavingsGoalsPage() {
   }
 
   const addFundsToGoal = async (goalId: string) => {
-    try {
-      const response = await fetch(`/api/saving-goals/${goalId}/add-funds`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: Number.parseFloat(addFundAmount) }),
-      })
+  try {
+    const amount = Number.parseFloat(addFundAmount[goalId] || "0")
+    if (amount <= 0) return
 
-      if (response.ok) {
-        await fetchSavingsData()
-        setSelectedGoal(null)
-        setAddFundAmount("")
-      }
-    } catch (error) {
-      console.error("Failed to add funds:", error)
+    const response = await fetch(`/api/saving-goals/${goalId}/add-funds`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount: amount, user_id: user_id}),
+    })
+
+    if (response.ok) {
+      await fetchSavingsData()
+      setAddFundAmount((prev) => ({ ...prev, [goalId]: "" })) // reset only this goal
     }
+  } catch (error) {
+    console.error("Failed to add funds:", error)
   }
+}
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -321,20 +324,29 @@ export default function SavingsGoalsPage() {
                           <div className="relative flex-1">
                             <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                             <Input
-                              type="number"
-                              placeholder="Amount"
-                              value={addFundAmount}
-                              onChange={(e) => setAddFundAmount(e.target.value)}
-                              className="pl-10 h-11 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
-                            />
+                                  type="number"
+                                  placeholder="Amount"
+                                  value={addFundAmount[goal.id] || ""}
+                                  onChange={(e) =>
+                                    setAddFundAmount((prev) => ({
+                                      ...prev,
+                                      [goal.id]: e.target.value,
+                                    }))
+                                  }
+                                  className="pl-10 h-11 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+                             />
+
                           </div>
                           <Button
                             onClick={() => addFundsToGoal(goal.id)}
-                            disabled={!addFundAmount || Number(addFundAmount) <= 0}
+                            disabled={
+                              !addFundAmount[goal.id] || Number(addFundAmount[goal.id]) <= 0
+                            }
                             className="h-11 px-6 bg-indigo-600 hover:bg-indigo-700"
                           >
                             Add
                           </Button>
+
                         </div>
                       </div>
                     )}

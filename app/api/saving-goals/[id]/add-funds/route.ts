@@ -1,21 +1,27 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> } // params is a Promise!
+) {
   try {
     const body = await request.json()
-    const goalId = params.id
+    const { id: goalId } = await context.params  // await params
 
-    // Replace with your actual backend API endpoint
-    const response = await fetch(`${process.env.BACKEND_API_URL}/api/savings-goals/${goalId}/add-funds`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.API_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        amount: body.amount,
-      }),
-    })
+    const response = await fetch(
+      `${process.env.BACKEND_API_URL}fintrack/addTransaction`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: body.amount,
+          goal_id: goalId,
+          user_id: body.user_id,
+        }),
+      }
+    )
 
     if (!response.ok) {
       throw new Error("Failed to add funds to goal")
