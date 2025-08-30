@@ -131,7 +131,7 @@ export default function SavingsGoalsPage() {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "INR",
     }).format(amount);
   };
 
@@ -312,31 +312,27 @@ export default function SavingsGoalsPage() {
                         <Label className="text-sm font-medium text-white">Add Funds</Label>
                         <div className="flex gap-3">
                           <div className="relative flex-1">
-                            <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400">₹</span>
                             <Input
-                                  type="number"
-                                  placeholder="Amount"
-                                  value={addFundAmount[goal.id] || ""}
-                                  onChange={(e) =>
-                                    setAddFundAmount((prev) => ({
-                                      ...prev,
-                                      [goal.id]: e.target.value,
-                                    }))
-                                  }
-                                  className="pl-10 h-11 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
-                             />
-
+                              type="number"
+                              placeholder="Amount"
+                              value={addFundAmount[goal.id] || ""}
+                              onChange={(e) =>
+                                setAddFundAmount((prev) => ({
+                                  ...prev,
+                                  [goal.id]: e.target.value,
+                                }))
+                              }
+                              className="pl-10 h-11 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+                            />
                           </div>
                           <Button
                             onClick={() => addFundsToGoal(goal.id)}
-                            disabled={
-                              !addFundAmount[goal.id] || Number(addFundAmount[goal.id]) <= 0
-                            }
+                            disabled={!addFundAmount[goal.id] || Number(addFundAmount[goal.id]) <= 0}
                             className="h-11 px-6 bg-indigo-600 hover:bg-indigo-700"
                           >
                             Add
                           </Button>
-
                         </div>
                       </div>
                     )}
