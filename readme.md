@@ -4,6 +4,8 @@
 
 FinTrack is a personal finance tracker that helps users manage their expenses, analyze spending habits, and receive smart saving/investment suggestions. It aims to make financial planning simple by combining expense tracking with an AI-driven advisory hub for smarter money decisions.
 
+Deployed_Link-https://fin-track-9plh.vercel.app/
+
 ## 🛠️ Tech Stack
 
 Frontend: Next.js (React, TailwindCSS, shadcn/ui)
